@@ -1,4 +1,5 @@
-use rand::{thread_rng, seq::SliceRandom};
+use rand::seq::SliceRandom;
+use std::fmt;
 
 enum CardAction {
     PeekSelf,
@@ -14,6 +15,7 @@ enum CardSuit {
     Clubs,
 }
 
+#[derive(Copy, Clone)]
 enum CardValue {
     Ace     = 1,
     Two     = 2,
@@ -37,32 +39,34 @@ struct Card {
 }
 
 impl Card {
-    fn get_value(&self) -> isize {
-        match self.suit {
-            CardSuit::Hearts | CardSuit::Diamonds => {
-                if matches!(CardValue:King, self.value) { 0 }
-                else CardValue::King as isize
-            }
+    fn get_value(&self) -> isize {    
+        match self.value {
+            CardValue::King if matches!(self.suit, CardSuit::Hearts | CardSuit::Diamonds) => 0,
             _ => self.value as isize
         }
     }
 
     fn get_action(&self) -> Option<CardAction> {
         match self.value {
-            CardValue::Seven | CardValue::Eight => Some(CardActions::PeekSame),
-            CardValue::Nine  | CardValue::Ten   => Some(CardActions::PeekElse),
-            CardValue::Jack  | CardValue::Queen => Some(CardActions::SwapPair),
-            CardValue::King => Some(CardActions::HatTrick),
+            CardValue::Seven | CardValue::Eight => Some(CardAction::PeekSelf),
+            CardValue::Nine  | CardValue::Ten   => Some(CardAction::PeekElse),
+            CardValue::Jack  | CardValue::Queen => Some(CardAction::SwapPair),
+            CardValue::King => Some(CardAction::HatTrick),
             _ => None,
         }
     }
 }
 
-struct CardStack { cards : Vec<Card> }
+struct CardStack(Vec<Card>);
 
 impl CardStack {
-    fn new_deck() -> Self {
-        CardStack {
-            vec![]
-        }
+    fn new_deck(&mut self) -> () {
+        let CardStack(deck_vec) = self;
+        
     }
+    
+    fn shuffle_deck(&mut self) -> () {
+        let CardStack(deck_vec) = self;
+        deck_vec.shuffle(&mut rand::thread_rng());
+    }
+}
